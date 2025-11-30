@@ -6,7 +6,7 @@ import json
 import math
 from pygame.math import Vector2
 from datetime import datetime
-from pytmx.util_pygame import load_pygame 
+from pytmx.util_pygame import load_pygame
 
 # CONFIGURACIÓN DE RUTA DE ARCHIVOS
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -25,9 +25,9 @@ try:
 except Exception:
     print("Advertencia: pygame.mixer no pudo inicializarse completamente.")
 
-cell_size = 25                
-number_of_cells = 25          
-BOARD_PIXELS = cell_size * number_of_cells  
+cell_size = 25
+number_of_cells = 25
+BOARD_PIXELS = cell_size * number_of_cells
 
 OFFSET = 60
 
@@ -50,7 +50,7 @@ GOLD = (255, 215, 0)
 SILVER = (192, 192, 192)
 BRONZE = (205, 127, 50)
 SKY_BLUE_LIGHT = (135, 206, 250)
-KEY_TUTORIAL_ALPHA = 200 
+KEY_TUTORIAL_ALPHA = 200
 
 SNAKE_COLORS = [(0, 100, 255)]
 
@@ -60,7 +60,7 @@ FONTS_DIR = os.path.join(SCRIPT_DIR, "fuentes")
 GRAPHICS_DIR = os.path.join(SCRIPT_DIR, "graficos")
 SOUNDS_DIR = os.path.join(SCRIPT_DIR, "sonidos")
 TILESETS_DIR = os.path.join(SCRIPT_DIR, "tilesets")
-TMJ_MAP_PATH = os.path.join(TILESETS_DIR, "tablero.tmj") 
+TMJ_MAP_PATH = os.path.join(TILESETS_DIR, "tablero.tmj")
 
 # Fuentes
 FONT_SNAKE_CHAN_PATH = os.path.join(FONTS_DIR, "snakechan.ttf")
@@ -101,10 +101,10 @@ SPRITE_MAP = {
     "CORNER_TR": "body_topright.png",
     "FOOD": "apple.png",
     "SPEED": "speed.png",
-    "KEY_W": "sprite-68-4.png", 
-    "KEY_A": "sprite-68-3.png", 
-    "KEY_S": "sprite-68-2.png", 
-    "KEY_D": "sprite-68-1.png"  
+    "KEY_W": "sprite-68-4.png",
+    "KEY_A": "sprite-68-3.png",
+    "KEY_S": "sprite-68-2.png",
+    "KEY_D": "sprite-68-1.png"
 }
 
 screen = pygame.display.set_mode((ANCHO, ALTO))
@@ -116,9 +116,9 @@ class SpriteManager:
         self.cell_size = cell_size
         self.sprites = {}
         self.food_sprite = None
-        self.speed_sprite = None 
-        self.trap_sprite = None 
-        self.key_sprites = {} 
+        self.speed_sprite = None
+        self.trap_sprite = None
+        self.key_sprites = {}
         self.load_all()
 
     def load_image(self, filename, custom_size=None):
@@ -140,7 +140,7 @@ class SpriteManager:
     def load_all(self):
         for key, filename in SPRITE_MAP.items():
             if not filename: continue
-            
+
             if key == "SPEED":
                 self.speed_sprite = self.load_image(filename, custom_size=(30, 30))
             elif isinstance(key, str) and key.startswith("KEY_"):
@@ -181,7 +181,7 @@ def render_tmj_map_json(tmj_path, target_cells, cell_size):
         tileset_image = pygame.image.load(tileset_image_path).convert_alpha()
         columns = tileset.get("columns")
         tilecount = tileset.get("tilecount")
-        
+
         tiles = []
         for i in range(tilecount):
             tx = (i % columns) * tilewidth
@@ -216,7 +216,7 @@ TMX_BACKGROUND_SURFACE = render_tmj_map_json(TMJ_MAP_PATH, number_of_cells, cell
 # SONIDOS
 eat_sound = None
 wall_hit_sound = None
-chile_sound = None 
+chile_sound = None
 
 try:
     eat_path = os.path.join(SOUNDS_DIR, "eat.mp3")
@@ -283,7 +283,7 @@ class DataManager:
         all_data = self._read_all_data()
         if self.game_id not in all_data: all_data[self.game_id] = []
         game_scores = all_data[self.game_id]
-        
+
         record_found = False
         old_score = 0
         for player in game_scores:
@@ -296,17 +296,17 @@ class DataManager:
                     player["date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 else: return False, old_score
                 break
-        
+
         if not record_found:
             game_scores.append({"name": name, "email": email, "score": score, "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-        
+
         game_scores.sort(key=lambda x: x['score'], reverse=True)
         all_data[self.game_id] = game_scores[:10]
         self._save_all_data(all_data)
-        
+
         new_top = game_scores[0] if game_scores else None
         if new_top and new_top["score"] > 0 and send_email_notification:
-             if new_top["score"] == score: 
+             if new_top["score"] == score:
                 try:
                     send_email_notification(new_top["email"], self.game_id, new_top["score"], new_top["name"])
                 except: pass
@@ -317,7 +317,7 @@ class DataManager:
 # ------------------ CLASES DE JUEGO
 
 class Wall:
-    def __init__(self, snake_body, food_positions, num_traps=17): 
+    def __init__(self, snake_body, food_positions, num_traps=17):
         self.positions = []
         self.num_traps = num_traps
         self.generate_initial_pos(snake_body, food_positions)
@@ -347,9 +347,9 @@ class Wall:
             cand = self.generate_random_cell()
             cx, cy = int(cand.x), int(cand.y)
             if cx < 2 or cx >= number_of_cells - 2: continue
-            if cy < 2 or cy >= number_of_cells: continue 
+            if cy < 2 or cy >= number_of_cells: continue
             if (cx, cy) in excluded: continue
-            
+
             dist_to_snake = min(abs(cx - int(sv.x)) + abs(cy - int(sv.y)) for sv in snake_body)
             if dist_to_snake <= 3: continue
             if self.is_adjacent_any(cand, self.positions): continue
@@ -368,12 +368,12 @@ class Food:
         self.generate_initial_pos(snake_body)
 
     def draw(self):
-        offset_y = math.sin(pygame.time.get_ticks() * 0.005) * 3 
-        
+        offset_y = math.sin(pygame.time.get_ticks() * 0.005) * 3
+
         if sprite_manager.food_sprite:
             for position in self.positions:
-                rect_pos = pygame.Rect(OFFSET + position.x * cell_size, 
-                                       OFFSET + position.y * cell_size + offset_y, 
+                rect_pos = pygame.Rect(OFFSET + position.x * cell_size,
+                                       OFFSET + position.y * cell_size + offset_y,
                                        cell_size, cell_size)
                 screen.blit(sprite_manager.food_sprite, rect_pos)
         else:
@@ -395,7 +395,7 @@ class Food:
             pos = self.generate_random_cell()
             px, py = int(pos.x), int(pos.y)
             if px < 2 or px >= number_of_cells - 2: continue
-            if py < 2: continue 
+            if py < 2: continue
             if (px, py) in excluded: continue
             self.positions.append(pos)
             excluded.add((px, py))
@@ -417,13 +417,13 @@ class Chili:
         self.active = False
         self.spawn_timer = 0
         self.last_spawn_score = 0
-    
+
     def spawn(self, snake_body, food_positions, wall_positions):
         self.active = True
         excluded = set((int(v.x), int(v.y)) for v in snake_body)
         excluded |= set((int(p.x), int(p.y)) for p in food_positions)
         excluded |= set((int(w.x), int(w.y)) for w in wall_positions)
-        
+
         attempts = 0
         while attempts < 1000:
             pos = Vector2(random.randint(0, number_of_cells-1), random.randint(0, number_of_cells-1))
@@ -434,25 +434,25 @@ class Chili:
                 self.position = pos
                 return
             attempts += 1
-        self.active = False 
+        self.active = False
 
     def draw(self):
         if not self.active: return
-        offset_y = math.sin(pygame.time.get_ticks() * 0.005) * 3 
-        
+        offset_y = math.sin(pygame.time.get_ticks() * 0.005) * 3
+
         x_pos = OFFSET + self.position.x * cell_size
         y_pos = OFFSET + self.position.y * cell_size + offset_y
-        
+
         center_x = x_pos + cell_size // 2
         center_y = y_pos + cell_size // 2
-        
+
         if sprite_manager.speed_sprite:
             sprite = sprite_manager.speed_sprite
             rect = sprite.get_rect(center=(center_x, center_y))
             screen.blit(sprite, rect)
         else:
             rect = pygame.Rect(x_pos, y_pos, cell_size, cell_size)
-            pygame.draw.rect(screen, RED, rect, 0, 4) 
+            pygame.draw.rect(screen, RED, rect, 0, 4)
             pygame.draw.rect(screen, (0, 255, 0), (x_pos + 10, y_pos - 5, 5, 5))
 
     def reset(self):
@@ -467,8 +467,8 @@ class Snake:
         self.eat_sound = eat_sound
         self.wall_hit_sound = wall_hit_sound
         self.can_change_direction = True
-        self.is_moving = False 
-        
+        self.is_moving = False
+
         if hasattr(sprite_manager, "sprites"): self.sprites = sprite_manager.sprites
         else: self.sprites = {}
 
@@ -511,8 +511,8 @@ class Snake:
                 else: pygame.draw.rect(screen, SNAKE_COLORS[0], block_rect, 0, 7)
 
     def update(self):
-        if not self.is_moving: return 
-        
+        if not self.is_moving: return
+
         self.body.insert(0, self.body[0] + self.direction)
         if not self.add_segment: self.body = self.body[:-1]
         else: self.add_segment = False
@@ -521,7 +521,7 @@ class Snake:
     def change_direction(self, new_direction):
         # Al presionar cualquier tecla válida, comenzamos el movimiento
         if not self.is_moving:
-            if new_direction == Vector2(-1, 0): return 
+            if new_direction == Vector2(-1, 0): return
             self.is_moving = True
 
         if self.can_change_direction and new_direction != -self.direction:
@@ -544,47 +544,47 @@ class Game:
     def __init__(self):
         self.snake = Snake()
         self.food = Food(self.snake.body, num_foods=4)
-        self.wall = Wall(self.snake.body, self.food.positions, num_traps=17) 
+        self.wall = Wall(self.snake.body, self.food.positions, num_traps=17)
         self.food.wall_positions = self.wall.positions
-        self.chili = Chili() 
+        self.chili = Chili()
         self.score = 0
         self.initial_speed_ms = 150
         self.current_speed_ms = self.initial_speed_ms
-        self.speed_level = 0 
+        self.speed_level = 0
         self.max_speed_level = 5
-        # Velocidad máxima 3.5 
-        self.min_speed_ms = int(self.initial_speed_ms / 3.5) 
+        # Velocidad máxima 3.5
+        self.min_speed_ms = int(self.initial_speed_ms / 3.5)
         self.last_chili_spawn_time = pygame.time.get_ticks()
         self.last_score_for_chili = 0
 
     def draw(self):
         self.food.draw()
-        self.chili.draw() 
+        self.chili.draw()
         self.wall.draw()
         self.snake.draw()
-        
+
         if not self.snake.is_moving:
             self.draw_wasd_tutorial()
 
     def draw_wasd_tutorial(self):
         center_x = ANCHO // 2
-        center_y = ALTO // 2 + 50 
-        
+        center_y = ALTO // 2 + 50
+
         keys = sprite_manager.key_sprites
         if not keys: return
-        
-        spacing = 45 
-        
-        w_pos = (center_x - 20, center_y - spacing) 
-        a_pos = (center_x - 20 - spacing, center_y) 
-        s_pos = (center_x - 20, center_y)           
-        d_pos = (center_x - 20 + spacing, center_y) 
-        
+
+        spacing = 45
+
+        w_pos = (center_x - 20, center_y - spacing)
+        a_pos = (center_x - 20 - spacing, center_y)
+        s_pos = (center_x - 20, center_y)
+        d_pos = (center_x - 20 + spacing, center_y)
+
         # Efecto de presión para la tecla D
         current_time = pygame.time.get_ticks()
         press_offset_y = 0
         is_pressed = (current_time // 500) % 2 == 0 # Alternar cada medio segundo
-        
+
         d_pos_draw = list(d_pos)
         d_alpha = KEY_TUTORIAL_ALPHA
         if is_pressed:
@@ -603,10 +603,10 @@ class Game:
         if "KEY_W" in keys: blit_alpha(keys["KEY_W"], w_pos, KEY_TUTORIAL_ALPHA)
         if "KEY_A" in keys: blit_alpha(keys["KEY_A"], a_pos, KEY_TUTORIAL_ALPHA)
         if "KEY_S" in keys: blit_alpha(keys["KEY_S"], s_pos, KEY_TUTORIAL_ALPHA)
-        
+
         # Dibujamos D con su posible efecto
         if "KEY_D" in keys: blit_alpha(keys["KEY_D"], tuple(d_pos_draw), d_alpha)
-        
+
         if is_pressed:
             txt = menu_font.render("¡MUÉVETE!", True, WHITE)
             screen.blit(txt, txt.get_rect(center=(center_x, center_y + 60)))
@@ -615,12 +615,12 @@ class Game:
     def update(self):
         self.snake.update()
         self.check_collision_with_food()
-        self.check_collision_with_chili() 
+        self.check_collision_with_chili()
         self.check_collision_with_edges()
         self.check_collision_with_tail()
         self.check_collision_with_walls()
-        self.handle_chili_spawning() 
-        
+        self.handle_chili_spawning()
+
     def handle_chili_spawning(self):
         if not self.chili.active:
             current_time = pygame.time.get_ticks()
@@ -647,10 +647,10 @@ class Game:
     def check_collision_with_chili(self):
         if self.chili.active and self.snake.body[0] == self.chili.position:
             if chile_sound: chile_sound.play()
-            self.snake.add_segment = True 
+            self.snake.add_segment = True
             self.chili.reset()
             self.last_chili_spawn_time = pygame.time.get_ticks()
-            self.last_score_for_chili = self.score 
+            self.last_score_for_chili = self.score
             if self.speed_level < self.max_speed_level:
                 self.speed_level += 1
                 self.recalculate_speed()
@@ -704,7 +704,7 @@ class Game:
         self.current_speed_ms = self.initial_speed_ms
         self.last_chili_spawn_time = pygame.time.get_ticks()
         self.last_score_for_chili = 0
-        
+
         game_state = "GAME_OVER"
         stop_music()
         pygame.time.set_timer(SNAKE_UPDATE, self.current_speed_ms)
@@ -950,7 +950,7 @@ def start_game_loop(player_name_arg, player_email_arg):
                         if event.key == pygame.K_DOWN: game.snake.change_direction(Vector2(0, 1))
                         if event.key == pygame.K_LEFT: game.snake.change_direction(Vector2(-1, 0))
                         if event.key == pygame.K_RIGHT: game.snake.change_direction(Vector2(1, 0))
-                        
+
                         # Soporte WASD
                         if event.key == pygame.K_w: game.snake.change_direction(Vector2(0, -1))
                         if event.key == pygame.K_s: game.snake.change_direction(Vector2(0, 1))
@@ -1001,25 +1001,25 @@ def start_game_loop(player_name_arg, player_email_arg):
         elif game_state == "NAME_INPUT_MENU": input_box_rect, continue_button_rect = draw_name_input_screen()
         elif game_state in ("RUNNING", "GAME_OVER"):
             screen.fill(DARK_GREEN)
-            
+
             # HUD
             hud_h = 48
             hud_rect = pygame.Rect(0, 0, ANCHO, hud_h)
             pygame.draw.rect(screen, BLACK, hud_rect)
-            
+
             display_name = current_player_name if current_player_name != "Invitado" else "Invitado"
             name_surf = score_font.render(f"Jugador: {display_name}", True, WHITE)
             screen.blit(name_surf, (OFFSET, (hud_h - name_surf.get_height()) // 2))
-            
+
             # BARRA VELOCIDAD
             bar_width = 150
             bar_height = 15
             bar_x = ANCHO // 2 - bar_width // 2
             bar_y = (hud_h - bar_height) // 2
-            
+
             pygame.draw.rect(screen, WALL_COLOR_DARK_GREY, (bar_x, bar_y, bar_width, bar_height), 0, 3)
             pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 1, 3)
-            
+
             segments = 5
             segment_w = (bar_width - 4) / segments
             for i in range(game.speed_level):
@@ -1042,13 +1042,13 @@ def start_game_loop(player_name_arg, player_email_arg):
             else:
                 pygame.draw.rect(screen, FOOD_COLOR_APPLE_RED, (ANCHO - OFFSET - 100, (hud_h - 30)//2, 30, 30), 0, 5)
             score_surf = standard_font_score.render(str(game.score), True, WHITE)
-            
+
             # EJE X (Izquierda <-> Derecha)
             score_x = ANCHO - OFFSET - 60
-            
+
             # EJE Y (Arriba <-> Abajo)
             score_y = (hud_h - score_surf.get_height()) // 2 + 4
-            
+
             screen.blit(score_surf, (score_x, score_y))
 
             if TMX_BACKGROUND_SURFACE:
@@ -1068,10 +1068,24 @@ def start_game_loop(player_name_arg, player_email_arg):
         pygame.display.update()
         clock.tick(60)
 
-if __name__ == '__main__':
-    initial_email = sys.argv[1] if len(sys.argv) > 1 else ""
+def main(player_email=""):
+    """Función principal para ejecutar Snake desde el menú"""
+    # Si player_email está vacío pero hay argumentos, usar los argumentos
+    if not player_email and len(sys.argv) > 1:
+        player_email = sys.argv[1]
+
+    print(f"Jugando Snake con email: {player_email}")
+
+    initial_email = player_email
     player_name = initial_email.split('@')[0] if initial_email and "@" in initial_email else "Invitado"
+
     font_dirs = [os.path.dirname(FONT_SNAKE_CHAN_PATH), os.path.dirname(FONT_SNAKEWAY_PATH)]
     for f_dir in font_dirs:
-        if f_dir and f_dir not in sys.path: sys.path.insert(0, f_dir)
+        if f_dir and f_dir not in sys.path:
+            sys.path.insert(0, f_dir)
+
     start_game_loop(player_name, initial_email)
+
+# Esto permite ejecutar el juego independientemente
+if __name__ == "__main__":
+    main()

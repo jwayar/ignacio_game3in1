@@ -6,6 +6,15 @@ import time
 import json
 from datetime import datetime
 
+player_email_global = ""
+player_email = ""
+
+# Permitir recibir el email desde menu.py (por sys.argv o variable)
+if len(sys.argv) > 1:
+    player_email = sys.argv[1].strip()
+    print(f"DEBUG: Email recibido -> {player_email}")
+else:
+    player_email = player_email_global
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -64,7 +73,7 @@ class DataManager:
         all_data = self._read_all_data()
         game_scores = all_data.get(self.game_id, [])
         game_scores.sort(key=lambda x: x['score'], reverse=True)
-        return game_scores[:10] 
+        return game_scores[:10]
 
     def update_score(self, name, email, score):
         if not email or "@" not in email:
@@ -160,7 +169,7 @@ font_small = pygame.font.SysFont("consolas", 18)
 font_med = pygame.font.SysFont("consolas", 26)
 font_big = pygame.font.SysFont("consolas", 48)
 
-# RUTA BASE PARA ARCHIVOS DE SONIDO 
+# RUTA BASE PARA ARCHIVOS DE SONIDO
 SOUND_DIR = os.path.join(SCRIPT_DIR, "sonidos")
 
 # Archivos de música (.mp3)
@@ -180,14 +189,14 @@ SOUNDS = {}
 def load_sounds():
     """Carga todos los archivos .wav como objetos pygame.mixer.Sound."""
     global SOUNDS
-    
+
     # Lista de archivos WAV a cargar (SOLO EFECTOS DE JUEGO)
     sound_files = [
         "0.wav", "1.wav", "2.wav", "3.wav",
         "invaderkilled.wav", "shipexplosion.wav",
         "shoot.wav", "shoot2.wav"
     ]
-    
+
     for filename in sound_files:
         path = os.path.join(SOUND_DIR, filename)
         key = filename.split('.')[0] # Usar el nombre sin extensión como clave (ej: "shoot")
@@ -195,7 +204,7 @@ def load_sounds():
             try:
                 SOUNDS[key] = pygame.mixer.Sound(path)
                 # Establece el volumen inicial para los efectos
-                SOUNDS[key].set_volume(game_volume) 
+                SOUNDS[key].set_volume(game_volume)
             except pygame.error as e:
                 print(f"Advertencia: No se pudo cargar el sonido {filename}: {e}")
         else:
@@ -211,7 +220,7 @@ def play_sound(sound_key):
         try:
             SOUNDS[sound_key].play()
         except pygame.error as e:
-            pass 
+            pass
 
 # ------------------- Reproducción de música (.mp3) -------------------
 def play_music_with_fade(file, volume=0.6, loop=True, fade_ms=800):
@@ -219,15 +228,15 @@ def play_music_with_fade(file, volume=0.6, loop=True, fade_ms=800):
     # SÓLO se permite reproducir si es la música del menú
     if file != menu_music_file:
         stop_music() # Asegura que si se llama con 'game.mp3' se detiene todo
-        return 
-        
-    path = os.path.join(SOUND_DIR, file) 
+        return
+
+    path = os.path.join(SOUND_DIR, file)
     if os.path.exists(path):
         try:
             if pygame.mixer.music.get_busy():
                 pygame.mixer.music.fadeout(fade_ms)
                 pygame.time.delay(fade_ms)
-            pygame.mixer.music.load(path) 
+            pygame.mixer.music.load(path)
             pygame.mixer.music.set_volume(volume)
             pygame.mixer.music.play(-1 if loop else 0, fade_ms=fade_ms)
         except Exception as e:
@@ -239,13 +248,13 @@ def play_music_instant(file, volume=0.6, loop=True):
     """Reproduce inmediatamente (sin fade). Ignora 'game.mp3'."""
     if file != menu_music_file:
         stop_music()
-        return 
-        
-    path = os.path.join(SOUND_DIR, file) 
+        return
+
+    path = os.path.join(SOUND_DIR, file)
     if os.path.exists(path):
         try:
             pygame.mixer.music.stop()
-            pygame.mixer.music.load(path) 
+            pygame.mixer.music.load(path)
             pygame.mixer.music.set_volume(volume)
             pygame.mixer.music.play(-1 if loop else 0)
         except Exception as e:
@@ -273,24 +282,24 @@ GRAPHICS = {}
 def load_graphics():
     """Carga todos los archivos .png como objetos pygame.Surface."""
     global GRAPHICS
-    
+
     image_files = [
         "enemy1_1.png", "enemy1_2.png",
-        "enemy2_1.png", "enemy2_2.png", 
-        "enemy3_1.png", "enemy3_2.png", 
-        "enemylaser.png", 
-        "explosionblue.png",    
-        "explosiongreen.png",   
-        "explosionpurple.png",  
+        "enemy2_1.png", "enemy2_2.png",
+        "enemy3_1.png", "enemy3_2.png",
+        "enemylaser.png",
+        "explosionblue.png",
+        "explosiongreen.png",
+        "explosionpurple.png",
         "laser.png", "ship.png"
     ]
-    
+
     for filename in image_files:
         path = os.path.join(GRAPHICS_DIR, filename)
-        key = filename.split('.')[0] 
+        key = filename.split('.')[0]
         if os.path.exists(path):
             try:
-                img = pygame.image.load(path).convert_alpha() 
+                img = pygame.image.load(path).convert_alpha()
                 GRAPHICS[key] = img
             except pygame.error as e:
                 print(f"Advertencia: No se pudo cargar la imagen {filename}: {e}")
@@ -332,48 +341,48 @@ def draw_text_left(text, font_obj, color, x, y):
 # ------------------- Enemigos -------------------
 def create_enemies(rows=5, cols=10):
     enemies = []
-    
+
     # Redimensionamiento de Sprites (Solo se hace una vez)
-    SCALE_FACTOR = 0.25 
-    enemy_width = 12  
-    enemy_height = 12 
-    
+    SCALE_FACTOR = 0.25
+    enemy_width = 12
+    enemy_height = 12
+
     if "enemy1_1" in GRAPHICS:
         enemy_width = int(GRAPHICS["enemy1_1"].get_width() * SCALE_FACTOR)
         enemy_height = int(GRAPHICS["enemy1_1"].get_height() * SCALE_FACTOR)
-        
+
         GRAPHICS["enemy1_1_SCALED"] = pygame.transform.scale(GRAPHICS["enemy1_1"], (enemy_width, enemy_height))
         GRAPHICS["enemy1_2_SCALED"] = pygame.transform.scale(GRAPHICS["enemy1_2"], (enemy_width, enemy_height))
-        
+
         GRAPHICS["enemy2_1_SCALED"] = pygame.transform.scale(GRAPHICS["enemy2_1"], (enemy_width, enemy_height))
         GRAPHICS["enemy2_2_SCALED"] = pygame.transform.scale(GRAPHICS["enemy2_2"], (enemy_width, enemy_height))
-        
+
         GRAPHICS["enemy3_1_SCALED"] = pygame.transform.scale(GRAPHICS["enemy3_1"], (enemy_width, enemy_height))
         GRAPHICS["enemy3_2_SCALED"] = pygame.transform.scale(GRAPHICS["enemy3_2"], (enemy_width, enemy_height))
-        
+
         GRAPHICS["explosionpurple_SCALED"] = pygame.transform.scale(GRAPHICS["explosionpurple"], (enemy_width, enemy_height))
         GRAPHICS["explosionblue_SCALED"] = pygame.transform.scale(GRAPHICS["explosionblue"], (enemy_width, enemy_height))
         GRAPHICS["explosiongreen_SCALED"] = pygame.transform.scale(GRAPHICS["explosiongreen"], (enemy_width, enemy_height))
-        
-    spacing_factor = 10 
-    row_spacing = 12    
-    
+
+    spacing_factor = 10
+    row_spacing = 12
+
     total_block_width = (cols * enemy_width) + ((cols - 1) * spacing_factor)
-    start_x = (WIDTH - total_block_width) // 2 
-    start_y = 50 
-        
-    for r in range(rows): 
+    start_x = (WIDTH - total_block_width) // 2
+    start_y = 50
+
+    for r in range(rows):
         for c in range(cols):
-            x = start_x + c * (enemy_width + spacing_factor) 
-            y = start_y + r * (enemy_height + row_spacing) 
-            
+            x = start_x + c * (enemy_width + spacing_factor)
+            y = start_y + r * (enemy_height + row_spacing)
+
             enemies.append({
                 "rect": pygame.Rect(x, y, enemy_width, enemy_height),
                 "row_index": r,
-                "exploding": False, 
-                "explosion_timer": 0 
-            }) 
-            
+                "exploding": False,
+                "explosion_timer": 0
+            })
+
     return enemies
 
 # ------------------- Pantalla de carga y fade -------------------
@@ -412,12 +421,12 @@ def fade_out_screen(duration_ms=350):
 # ------------------- Ajuste de volumen (TAB + flechas) -------------------
 def adjust_volumes():
     global menu_volume, game_volume
-    selected = 0  
+    selected = 0
     # SINCRONIZACIÓN: Carga instantánea de menu.mp3 para probar volumen
     # Usamos un archivo dummy para simular el volumen del juego (que ahora son los efectos)
     test_file = menu_music_file if selected == 0 else menu_music_file # Usamos menu.mp3 para simular ambos, pero solo si estamos en el menú
-    play_music_instant(test_file, menu_volume) 
-    
+    play_music_instant(test_file, menu_volume)
+
     adjusting = True
     while adjusting:
         clock.tick(FPS)
@@ -526,7 +535,7 @@ def game_over_screen_with_input(score):
     name = ""
     entering_name = True
     prompt = "ESCRIBÍ TU NOMBRE (ENTER para guardar):"
-    
+
     while entering_name:
         clock.tick(FPS)
         for ev in pygame.event.get():
@@ -558,10 +567,10 @@ def game_over_screen_with_input(score):
         draw_text_center("GAME OVER", font_big, RED, WIDTH//2, HEIGHT//2 - 140)
         draw_text_center(f"Puntos: {score}", font_med, WHITE, WIDTH//2, HEIGHT//2 - 90)
         draw_text_center(prompt, font_small, YELLOW, WIDTH//2, HEIGHT//2 - 40)
-        
+
         box_rect = pygame.Rect(WIDTH//2 - 220, HEIGHT//2 - 20, 440, 40)
         pygame.draw.rect(screen, WHITE, box_rect, border_radius=6)
-        
+
         txt_surf = font_med.render(name, True, BLACK)
         screen.blit(txt_surf, (box_rect.x + 8, box_rect.y + 4))
         draw_text_center("", font_small, GRAY, WIDTH//2, HEIGHT//2 + 40)
@@ -585,13 +594,13 @@ def game_over_screen_with_input(score):
                     if b["rect"].collidepoint(ev.pos):
                         if b["action"] == "main_menu":
                             stop_music()
-                            pygame.quit()  
-                            sys.exit() 
-                        
+                            pygame.quit()
+                            sys.exit()
+
                         if b["action"] != "retry":
                              # Al volver al menú, SÍ queremos la música del menú
                              play_music_with_fade(menu_music_file, menu_volume, fade_ms=400)
-                        return b["action"] 
+                        return b["action"]
 
         update_stars()
         draw_background()
@@ -621,7 +630,7 @@ def main_game():
     Función principal del juego (minijuego).
     Lógica de oleadas, aceleración y sonido sincronizado (Proyecto Beta).
     """
-    
+
     global moveTime, moveTimeCurrent, moveTimeBase
 
     fade_out_screen(200)
@@ -636,31 +645,31 @@ def main_game():
     else:
         ship_width = 50
         ship_height = 20
-        
+
     player = pygame.Rect(WIDTH//2 - ship_width//2, HEIGHT - 60, ship_width, ship_height)
-    bullets = []        
-    enemy_bullets = []     
-    enemies = create_enemies(cols=10) 
+    bullets = []
+    enemy_bullets = []
+    enemies = create_enemies(cols=10)
     direction = 1
     score = 0
     player_lives = 3
     running = True
 
     # Lógica de Animación
-    animation_counter = 0  
-    animation_speed = 30   
-    EXPLOSION_DURATION = 15 
-    
+    animation_counter = 0
+    animation_speed = 30
+    EXPLOSION_DURATION = 15
+
     # Variables de Disparo del Jugador
     player_can_shoot = True
     player_shot_delay = 0
-    PLAYER_SHOT_DELAY_MAX = 30 
-    
+    PLAYER_SHOT_DELAY_MAX = 30
+
     # Variables de Disparo del Enemigo (Cadencia dinámica)
-    ENEMY_SHOT_DELAY_MIN = 20 
-    ENEMY_SHOT_DELAY_MAX = 120 
+    ENEMY_SHOT_DELAY_MIN = 20
+    ENEMY_SHOT_DELAY_MAX = 120
     enemy_shot_timer = 0
-    
+
     # Variables de Parpadeo de Invulnerabilidad
     hit_time = 0
     RESPAWN_DELAY = 1200  # ms de invulnerabilidad tras ser golpeado
@@ -671,40 +680,40 @@ def main_game():
         now = pygame.time.get_ticks()
 
         # --- Lógica de Oleada (Basada en moveTime) ---
-        active_enemies = [en_obj for en_obj in enemies if not en_obj["exploding"]] 
-        
+        active_enemies = [en_obj for en_obj in enemies if not en_obj["exploding"]]
+
         # 1. Aceleración Automática (update_speed)
         if active_enemies:
             remaining_ratio = len(active_enemies) / (10 * 5) # 50 enemigos iniciales
             moveTimeCurrent = max(1, int(moveTimeBase * remaining_ratio))
-            
+
         # 2. Control de la Sincronización Musical y Movimiento
-        target_move_ms = moveTimeCurrent * (1000/FPS) 
-        
+        target_move_ms = moveTimeCurrent * (1000/FPS)
+
         if now - last_move_time > target_move_ms:
             last_move_time = now
-            
+
             # Mover enemigos y actualizar el sonido
             if active_enemies:
                 # SINCRONIZACIÓN: Toca el sonido de movimiento '0', '1', '2', '3'
-                play_sound(str(moveTime)) 
-                moveTime = (moveTime + 1) % 4 
-                
+                play_sound(str(moveTime))
+                moveTime = (moveTime + 1) % 4
+
                 # Movimiento lateral
                 move_down_pending = False
-                for en_obj in active_enemies: 
-                    en = en_obj["rect"] 
+                for en_obj in active_enemies:
+                    en = en_obj["rect"]
                     # Paso lateral de 6 píxeles (corregido)
-                    en.x += 6 * direction 
+                    en.x += 6 * direction
                     if en.right >= WIDTH - 10 or en.left <= 10:
                         move_down_pending = True
 
                 # Movimiento hacia abajo
                 if move_down_pending:
                     direction *= -1
-                    for en_obj in active_enemies: 
+                    for en_obj in active_enemies:
                         en_obj["rect"].y += 10
-        
+
         # Actualizar Contadores de Animación
         animation_counter += 1
         if animation_counter >= animation_speed:
@@ -712,8 +721,8 @@ def main_game():
 
         animation_frame = 0
         if animation_counter >= animation_speed // 2:
-            animation_frame = 1 
-                
+            animation_frame = 1
+
         # Eventos
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -725,14 +734,14 @@ def main_game():
             player.x -= 7
         if keys[pygame.K_RIGHT] and player.right < WIDTH:
             player.x += 7
-            
+
         # Control de Disparo del Jugador
         if not player_can_shoot:
             player_shot_delay += 1
             if player_shot_delay >= PLAYER_SHOT_DELAY_MAX:
                 player_can_shoot = True
                 player_shot_delay = 0
-                
+
         if keys[pygame.K_SPACE] and len(bullets) < 5 and player_can_shoot:
             if "laser" in GRAPHICS:
                 laser_width = GRAPHICS["laser"].get_width()
@@ -740,31 +749,31 @@ def main_game():
             else:
                 laser_width = 4
                 laser_height = 10
-                
+
             bullets.append(pygame.Rect(player.centerx - laser_width//2, player.top, laser_width, laser_height))
-            play_sound("shoot") 
-            player_can_shoot = False 
+            play_sound("shoot")
+            player_can_shoot = False
 
         # --- Disparo de los enemigos (Cadencia dinámica) ---
         if active_enemies:
-            # Cadencia de disparo dinámica 
+            # Cadencia de disparo dinámica
             remaining_ratio = len(active_enemies) / max(1, 10 * 5)
             dynamic_delay = int(ENEMY_SHOT_DELAY_MIN + (ENEMY_SHOT_DELAY_MAX - ENEMY_SHOT_DELAY_MIN) * remaining_ratio)
-            
+
             enemy_shot_timer += 1
             if enemy_shot_timer >= dynamic_delay:
-                shooter_obj = random.choice(active_enemies) 
-                shooter = shooter_obj["rect"] 
-                
+                shooter_obj = random.choice(active_enemies)
+                shooter = shooter_obj["rect"]
+
                 if "enemylaser" in GRAPHICS:
                     e_laser_width = GRAPHICS["enemylaser"].get_width()
                     e_laser_height = GRAPHICS["enemylaser"].get_height()
                 else:
                     e_laser_width = 4
                     e_laser_height = 10
-                    
+
                 enemy_bullets.append(pygame.Rect(shooter.centerx - e_laser_width//2, shooter.bottom, e_laser_width, e_laser_height))
-                play_sound("shoot2") 
+                play_sound("shoot2")
                 enemy_shot_timer = 0 # Reinicia el temporizador
 
         # Colisión de balas del jugador y enemigos
@@ -773,21 +782,21 @@ def main_game():
             if b.bottom < 0:
                 bullets.remove(b)
                 continue
-            
-            hit_enemy_obj = None 
+
+            hit_enemy_obj = None
             for i, en_obj in enumerate(enemies):
-                if not en_obj["exploding"] and b.colliderect(en_obj["rect"]): 
+                if not en_obj["exploding"] and b.colliderect(en_obj["rect"]):
                     hit_enemy_obj = en_obj
                     break
-            
+
             if hit_enemy_obj:
                 bullets.remove(b)
                 score += 10
-                play_sound("invaderkilled") 
+                play_sound("invaderkilled")
 
                 hit_enemy_obj["exploding"] = True
                 hit_enemy_obj["explosion_timer"] = EXPLOSION_DURATION
-                
+
                 continue
 
         # Actualización de la explosión y eliminación de enemigos
@@ -795,27 +804,27 @@ def main_game():
             if en_obj["exploding"]:
                 en_obj["explosion_timer"] -= 1
                 if en_obj["explosion_timer"] <= 0:
-                    enemies.remove(en_obj) 
+                    enemies.remove(en_obj)
 
         # Colisión de balas enemigas y jugador (con parpadeo)
         is_invulnerable = (now - hit_time) < RESPAWN_DELAY
-        
+
         for eb in enemy_bullets[:]:
             eb.y += 6
             if eb.top > HEIGHT:
                 try: enemy_bullets.remove(eb)
                 except ValueError: pass
                 continue
-                
+
             if eb.colliderect(player) and not is_invulnerable:
                 try: enemy_bullets.remove(eb)
                 except ValueError: pass
 
                 player_lives -= 1
-                play_sound("shipexplosion") 
+                play_sound("shipexplosion")
 
                 # Activar parpadeo
-                hit_time = now 
+                hit_time = now
                 is_invulnerable = True
                 player.x = WIDTH // 2 - player.width // 2 # Reposicionar nave
                 player.y = HEIGHT - 60
@@ -826,38 +835,38 @@ def main_game():
 
         # Enemigos llegan abajo
         for en_obj in active_enemies:
-            if en_obj["rect"].bottom >= player.top: 
+            if en_obj["rect"].bottom >= player.top:
                 player_lives = 0
                 running = False
                 break
 
         # Generar nueva oleada
         if not active_enemies:
-            enemies = create_enemies(cols=10) 
+            enemies = create_enemies(cols=10)
             # Reiniciar velocidad al inicio de la nueva oleada
             moveTimeCurrent = moveTimeBase
 
         # Diseño y Renderizado
         update_stars()
         draw_background()
-        
+
         # --- Lógica de Parpadeo de la Nave ---
-        blink = True 
-        
+        blink = True
+
         if is_invulnerable:
             blink = (now // 120) % 2 == 0
-            
-        if blink or not is_invulnerable: 
+
+        if blink or not is_invulnerable:
             if "ship" in GRAPHICS: screen.blit(GRAPHICS["ship"], player.topleft)
             else: pygame.draw.rect(screen, GREEN, player)
-        
-        # Dibujo de Balas 
+
+        # Dibujo de Balas
         if "laser" in GRAPHICS:
             laser_img = GRAPHICS["laser"]
             for b in bullets: screen.blit(laser_img, b.topleft)
         else:
             for b in bullets: pygame.draw.rect(screen, WHITE, b)
-            
+
         if "enemylaser" in GRAPHICS:
             e_laser_img = GRAPHICS["enemylaser"]
             for eb in enemy_bullets: screen.blit(e_laser_img, eb.topleft)
@@ -865,44 +874,44 @@ def main_game():
             for eb in enemy_bullets: pygame.draw.rect(screen, BLUE, eb)
 
 
-        # Dibujar enemigos / explosiones 
-        sprite_keys_type1 = ["enemy1_1_SCALED", "enemy1_2_SCALED"] 
-        sprite_keys_type2 = ["enemy2_1_SCALED", "enemy2_2_SCALED"] 
-        sprite_keys_type3 = ["enemy3_1_SCALED", "enemy3_2_SCALED"] 
+        # Dibujar enemigos / explosiones
+        sprite_keys_type1 = ["enemy1_1_SCALED", "enemy1_2_SCALED"]
+        sprite_keys_type2 = ["enemy2_1_SCALED", "enemy2_2_SCALED"]
+        sprite_keys_type3 = ["enemy3_1_SCALED", "enemy3_2_SCALED"]
 
         for en_obj in enemies:
-            e = en_obj["rect"] 
+            e = en_obj["rect"]
             current_row = en_obj["row_index"]
-            
+
             if en_obj["exploding"]:
                 if current_row < 2: explosion_img = GRAPHICS.get("explosionpurple_SCALED")
                 elif current_row < 4: explosion_img = GRAPHICS.get("explosionblue_SCALED")
                 else: explosion_img = GRAPHICS.get("explosiongreen_SCALED")
-                    
+
                 if explosion_img: screen.blit(explosion_img, e.topleft)
-                else: pygame.draw.rect(screen, (255, 0, 255) if current_row < 2 else (0, 0, 255), e) 
-                continue 
+                else: pygame.draw.rect(screen, (255, 0, 255) if current_row < 2 else (0, 0, 255), e)
+                continue
 
             if current_row < 2:
                 sprite_keys = sprite_keys_type1; color_fallback = RED
             elif current_row < 4:
                 sprite_keys = sprite_keys_type2; color_fallback = GREEN
             else:
-                sprite_keys = sprite_keys_type3; color_fallback = YELLOW 
+                sprite_keys = sprite_keys_type3; color_fallback = YELLOW
 
             sprite_key = sprite_keys[animation_frame]
-            
+
             if sprite_key in GRAPHICS:
                 enemy_img = GRAPHICS[sprite_key]
                 screen.blit(enemy_img, e.topleft)
             else:
                 pygame.draw.rect(screen, color_fallback, e)
-                
-        # HUD 
+
+        # HUD
         draw_text_left(f"Puntos: {score}", font_small, WHITE, 10, 10)
         life_text = f"Vida: {player_lives}"
         draw_text_left(life_text, font_small, WHITE, WIDTH - 160, 10)
-        
+
         max_lives = 3
         bar_w = 100
         bar_h = 12
@@ -915,14 +924,14 @@ def main_game():
 
         pygame.display.flip()
 
-    # Pantalla Game Over 
+    # Pantalla Game Over
     stop_music(fade_ms=400)
     result = game_over_screen_with_input(score)
-    
+
     if result == "retry":
         main_game()
     elif result == "menu":
-        return  
+        return
 
 
 # ***************** Menu principal ****************
@@ -969,7 +978,7 @@ def main_menu():
                 rect = pygame.Rect(WIDTH//2 - 140, y - 22, 280, 48)
                 if rect.collidepoint(mx, my):
                     if text == "JUGAR":
-                        main_game() 
+                        main_game()
                         # Al volver, la música del menú se cargará desde game_over_screen_with_input o main_menu
                     elif text == "PUNTUACIONES":
                         show_scores_screen()
@@ -983,5 +992,12 @@ def main_menu():
                         sys.exit()
 
 # ejecucion
-if __name__ == "__main__":
+def main(player_email=""):
+    """Función principal para ejecutar Space Invaders desde el menú"""
+    global player_email_global
+    player_email_global = player_email
     main_menu()
+
+# ejecucion
+if __name__ == "__main__":
+    main()

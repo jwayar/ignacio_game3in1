@@ -32,10 +32,33 @@ MUSIC_FILE = os.path.join(MENU_PATH, "musica", "Retro_Theme.mp3") # musica
 # Ruta del archivo de configuración donde se almacena el email del jugador
 EMAIL_FILE = os.path.join(MENU_PATH, "current_email.txt") # archivo para guardar el email ingresado
 
-# Ruta de juegos
-FLAPPY_PATH = os.path.join(BASE_PATH, "Flappy Bird", "flappy.py")
-SPACE_INVADERS_PATH = os.path.join(BASE_PATH, "SpaceInvaders", "SpaceInvaders.py")
-SNAKE_PATH = os.path.join(BASE_PATH, "Snake", "snake.py")
+# Importar los juegos como módulos
+try:
+    print(f"[DEBUG] Intentando importar juegos...")
+    print(f"[DEBUG] BASE_PATH: {BASE_PATH}")
+
+    # Agregar las carpetas de juegos al path de Python
+    sys.path.insert(0, os.path.join(BASE_PATH, "Snake"))
+    sys.path.insert(0, os.path.join(BASE_PATH, "FlappyBird"))
+    sys.path.insert(0, os.path.join(BASE_PATH, "SpaceInvaders"))
+
+    from snake import main as snake_main
+    print("[DEBUG] Snake importado OK")
+
+    from flappy import main as flappy_main
+    print("[DEBUG] Flappy Bird importado OK")
+
+    from SpaceInvaders import main as space_invaders_main
+    print("[DEBUG] Space Invaders importado OK")
+
+    GAMES_AVAILABLE = True
+    print("[DEBUG] Todos los juegos importados correctamente")
+
+except ImportError as e:
+    print(f"[DEBUG] Error importing games: {e}")
+    import traceback
+    traceback.print_exc()
+    GAMES_AVAILABLE = False
 
 # Data store
 DATA_PATH = os.path.join(BASE_PATH, "data") # carpeta para almacenar los puntajes
@@ -54,9 +77,19 @@ COLORS = {
     'toggle_bg': (200, 200, 200),
     'star_light': (200, 200, 255),
     'gradient_edge': (200, 200, 255),
-    'credits_bg': (20, 15, 30), 
+    'credits_bg': (20, 15, 30),
 }
 
+# Función para manejar rutas en PyInstaller
+def resource_path(relative_path):
+    """Obtiene la ruta absoluta al recurso, funciona para dev y para PyInstaller"""
+    try:
+        # PyInstaller crea una carpeta temporal y almacena la ruta en _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 #Verifica la existencia de la carpeta 'data' y el archivo 'global_scores.json' (si existen omite la creacion)
 def initialize_data_storage():
@@ -80,20 +113,18 @@ def initialize_data_storage():
         print("[DEBUG] El archivo 'global_scores.json' ya existe.")
     print("------------------------------------------\n")
 
-
 #Carga la fuente designada para el menú, botones y texto general
 def get_font(size):
     try:
-        font_path = os.path.join(FONT_FOLDER, FONT_CONFIG['menu'])
+        font_path = resource_path(os.path.join(FONT_FOLDER, FONT_CONFIG['menu']))
         return pygame.font.Font(font_path, size)
     except:
         return pygame.font.SysFont('Arial', size)
 
 #Carga la fuente para el título principal del juego
 def get_main_title_font(size):
-    
     try:
-        font_path = os.path.join(FONT_FOLDER, FONT_CONFIG['title'])
+        font_path = resource_path(os.path.join(FONT_FOLDER, FONT_CONFIG['title']))
         return pygame.font.Font(font_path, size)
     except:
         return pygame.font.SysFont('Arial', size)
@@ -101,7 +132,7 @@ def get_main_title_font(size):
 #Carga la fuente para el campo de entrada del email (input box)
 def get_input_font(size):
     try:
-        font_path = os.path.join(FONT_FOLDER, FONT_CONFIG['input'])
+        font_path = resource_path(os.path.join(FONT_FOLDER, FONT_CONFIG['input']))
         return pygame.font.Font(font_path, size)
     except:
         return pygame.font.SysFont('Arial', size)
@@ -118,32 +149,30 @@ def render_text_with_outline(font, text, main_color, outline_color, position, sc
 
 # Dibuja una franja en la parte superior del fondo del menú
 def draw_subtle_gradient(screen, rect_y, rect_height, color_start, color_end):
-    
     width = screen.get_width()
-    
+
     # Calcular las diferencias de color para el cambio gradual
     dr = (color_end[0] - color_start[0]) / rect_height
     dg = (color_end[1] - color_start[1]) / rect_height
     db = (color_end[2] - color_start[2]) / rect_height
 
-    
     for y in range(rect_height):
-        
         r = int(color_start[0] + dr * y)
         g = int(color_start[1] + dg * y)
         b = int(color_start[2] + db * y)
-        
         pygame.draw.line(screen, (r, g, b), (0, rect_y + y), (width, rect_y + y))
 
 # Carga y reproduce la musica de fondo en bucle
 def play_music():
     if IS_MUSIC_ON:
         try:
-            if os.path.exists(MUSIC_FILE):
-                pygame.mixer.music.load(MUSIC_FILE)
+            music_path = resource_path(MUSIC_FILE)
+            if os.path.exists(music_path):
+                pygame.mixer.music.load(music_path)
                 pygame.mixer.music.play(-1) #lo mantiene en bucle
-        except:
-            pass
+        except Exception as e:
+            print(f"Error loading music: {e}")
+
 #Alterna el estado de la musica (on/off)
 def toggle_music():
     global IS_MUSIC_ON
@@ -153,45 +182,47 @@ def toggle_music():
     else:
         pygame.mixer.music.stop()
 
-#Carga el último email guardado 
+#Carga el último email guardado
 def load_email():
-    if os.path.exists(EMAIL_FILE):
-        with open(EMAIL_FILE, 'r', encoding='utf-8') as f:
-            return f.read().strip()
+    try:
+        email_path = resource_path(EMAIL_FILE)
+        if os.path.exists(email_path):
+            with open(email_path, 'r', encoding='utf-8') as f:
+                return f.read().strip()
+    except:
+        pass
     return ""
 
 #Guarda el email del jugador
 def save_email(email):
     try:
-        with open(EMAIL_FILE, 'w', encoding='utf-8') as f:
+        email_path = resource_path(EMAIL_FILE)
+        with open(email_path, 'w', encoding='utf-8') as f:
             f.write(email.strip())
     except:
         pass
-        
+
 def get_char_index_from_pos(font, text, x_pos, start_x):
-    
     current_x = start_x
     if x_pos < start_x:
         return 0
-        
+
     for i, char in enumerate(text):
         char_width, _ = font.size(char)
-        
+
         if x_pos < current_x + char_width // 2:
             return i
         current_x += char_width
-    
-    
-    return len(text)
 
+    return len(text)
 
 def input_box_logic_retro(screen, rect, text, active, cursor_pos, default_text="Ingresa tu email", clear_font_name=None):
     mouse_pos = pygame.mouse.get_pos()
     color = COLORS['text'] if active else COLORS['button_grey']
     # Dibujar caja de entrada (input box)
     pygame.draw.rect(screen, COLORS['input_box'], rect)
-    pygame.draw.rect(screen, color, rect, 3)  
-    
+    pygame.draw.rect(screen, color, rect, 3)
+
     # Tipográfica y márgenes
     font = get_input_font(16)
     padding = 10
@@ -250,7 +281,8 @@ def input_box_logic_retro(screen, rect, text, active, cursor_pos, default_text="
     # Fuente para el boton 'X'
     if clear_font_name:
         try:
-            x_font = pygame.font.Font(clear_font_name, 20)
+            clear_font_path = resource_path(clear_font_name)
+            x_font = pygame.font.Font(clear_font_path, 20)
         except:
             x_font = get_font(20)
     else:
@@ -262,17 +294,13 @@ def input_box_logic_retro(screen, rect, text, active, cursor_pos, default_text="
 
     return clear_rect, is_hover
 
-#Abre los juegos (snake, flappy, SpaceInvaders) pasando el email del jugador como argumento
-def run_game(script_path, player_email):
-    if not os.path.exists(script_path):
-        print(f"Error: No se encuentra el script {script_path}")
-        return
+# Ejecuta los juegos como módulos en lugar de procesos separados
+def run_game(game_function, player_email):
     try:
         pygame.mixer.music.stop()
         save_email(player_email)
-        subprocess.run([sys.executable, script_path, player_email],
-                          cwd=os.path.dirname(script_path),
-                          check=True)
+        # Pasar el email como argumento a la función del juego
+        game_function(player_email)
     except Exception as e:
         print(f"Error ejecutando el juego: {e}")
     finally:
@@ -296,8 +324,7 @@ def draw_scanlines(screen):
         pygame.draw.line(scanline_surface, scanline_color, (0, y), (screen.get_width(), y))
     screen.blit(scanline_surface, (0, 0))
 
-
-# Genera una lista de estrellas 
+# Genera una lista de estrellas
 def create_stars(num_stars, speed_factor, size, screen_width, screen_height):
     stars = []
     for _ in range(num_stars):
@@ -320,7 +347,6 @@ def draw_and_move_stars(screen, stars, color):
 
 # PANTALLA DE CRÉDITOS
 def credits_screen(screen, fps_clock):
-    
     credits_data = [
         " CREDITS ",
         "",
@@ -352,55 +378,51 @@ def credits_screen(screen, fps_clock):
         "",
         "Presiona ESC, RETORNO o haz click para volver...",
     ]
-    
+
     # Fuentes
     title_font = get_main_title_font(48)
     text_font = get_font(24)
     note_font = get_font(18)
-    
-    # cargar imagen 
+
+    # cargar imagen
     meme_img = None
     try:
-        if os.path.exists("meme.jpg"): 
-            meme_img = pygame.image.load("meme.jpg").convert_alpha()
-            
+        meme_path = resource_path("meme.jpg")
+        if os.path.exists(meme_path):
+            meme_img = pygame.image.load(meme_path).convert_alpha()
             meme_img = pygame.transform.scale(meme_img, (350, 350))
             print(f"[DEBUG] Imagen 'meme.jpg' cargada")
         else:
             print(f"[DEBUG] Imagen 'meme.jpg' no esta en la carpeta.")
     except pygame.error as e:
-        print(f"ERROR: No se pudo cargar la imagen 'meme.jpg' ")
+        print(f"ERROR: No se pudo cargar la imagen 'meme.jpg': {e}")
         meme_img = None
-    
+
     meme_height = meme_img.get_height() if meme_img else 0
-    
+
     # Calcular la altura total de los créditos para el desplazamiento
     total_credits_height = 0
     line_spacing = 30 # Espaciado entre líneas
-    
+
     for i, line in enumerate(credits_data):
         current_font = text_font
         if "CREDITS" in line or "Gracias" in line:
             current_font = title_font
         elif "Presiona ESC" in line:
             current_font = note_font
-        
-    
+
         if line == "__INSERT_MEME_HERE__":
             total_credits_height += meme_height + line_spacing # Altura de la imagen + espacio extra
         else:
             total_credits_height += current_font.size(line)[1]
-        total_credits_height += line_spacing 
+        total_credits_height += line_spacing
 
+    scroll_offset = SCREENHEIGHT
+    scroll_speed = 0.05 # Velocidad de desplazamiento
 
-    
-    scroll_offset = SCREENHEIGHT 
-    
-    scroll_speed = 0.05 # Velocidad de desplazamiento 
-    
     running = True
     credits_finished_scrolling = False
-    
+
     while running:
         dt = fps_clock.tick(FPS)
 
@@ -417,10 +439,10 @@ def credits_screen(screen, fps_clock):
         # Desplazamiento (scroll)
         if not credits_finished_scrolling:
             scroll_offset -= scroll_speed * dt
-            
+
             # Lógica de detención del scroll
-            target_y_for_last_line = SCREENHEIGHT - 30 
-            
+            target_y_for_last_line = SCREENHEIGHT - 30
+
             if scroll_offset <= (target_y_for_last_line - (total_credits_height - line_spacing)):
                  credits_finished_scrolling = True
                  scroll_offset = (target_y_for_last_line - (total_credits_height - line_spacing))
@@ -434,14 +456,13 @@ def credits_screen(screen, fps_clock):
             current_font = text_font
             color = COLORS['text']
             outline = (0, 0, 0)
-            
+
             if "CREDITS" in line or "Gracias" in line:
                 current_font = title_font
             elif "Presiona ESC" in line:
                 current_font = note_font
                 color = COLORS['button_hover']
-            
-          
+
             if line == "__INSERT_MEME_HERE__" and meme_img:
                 img_rect = meme_img.get_rect(center=(SCREENWIDTH // 2, y_pos + meme_img.get_height() // 2))
                 if -meme_img.get_height() < img_rect.y < SCREENHEIGHT:
@@ -450,19 +471,17 @@ def credits_screen(screen, fps_clock):
             else: # Dibujar texto normal
                 line_surface = current_font.render(line, True, color)
                 line_rect = line_surface.get_rect(center=(SCREENWIDTH // 2, y_pos + line_surface.get_height() // 2))
-                
+
                 # Solo dibujar si está en pantalla
                 if -line_surface.get_height() < line_rect.y < SCREENHEIGHT:
-                    if "Presiona ESC" not in line and "CREDITS" not in line and "Gracias" not in line: 
+                    if "Presiona ESC" not in line and "CREDITS" not in line and "Gracias" not in line:
                         render_text_with_outline(current_font, line, color, outline, (line_rect.x, line_rect.y), screen, outline_size=1)
                     else:
                         screen.blit(line_surface, line_rect)
-                y_pos += line_surface.get_height() + line_spacing 
-
+                y_pos += line_surface.get_height() + line_spacing
 
         draw_scanlines(screen)
         pygame.display.update()
-        
 
 #Función principal del menú del juego
 def main():
@@ -486,28 +505,35 @@ def main():
     input_box = pygame.Rect(SCREENWIDTH // 2 - 150, INPUT_BOX_Y, 300, 40)
     cursor_pos = len(email_text)
 
-    # Elementos del menu
+    # Elementos del menu - ahora usamos las funciones importadas
     menu_items = [
-        {"text": "SNAKE", "action": lambda: run_game(SNAKE_PATH, email_text)},
-        {"text": "SPACE INVADERS", "action": lambda: run_game(SPACE_INVADERS_PATH, email_text)},
-        {"text": "FLAPPY BIRD", "action": lambda: run_game(FLAPPY_PATH, email_text)},
+        {"text": "SNAKE", "action": lambda: run_game(snake_main, email_text)},
+        {"text": "SPACE INVADERS", "action": lambda: run_game(space_invaders_main, email_text)},
+        {"text": "FLAPPY BIRD", "action": lambda: run_game(flappy_main, email_text)},
         {"text": "SALIR", "action": lambda: sys.exit()}
     ]
+
+    # Si los juegos no están disponibles, mostrar mensaje
+    if not GAMES_AVAILABLE:
+        menu_items = [
+            {"text": "JUEGOS NO DISPONIBLES", "action": lambda: None},
+            {"text": "SALIR", "action": lambda: sys.exit()}
+        ]
 
     selected_index = 0
     blink_timer = 0
     blink_state = True # Esta variable controla el parpadeo del título y el menú
-    
+
     # Bucle principal
     while True:
         dt = FPSCLOCK.tick(FPS)
         blink_timer += dt
-        if blink_timer >= 700: 
+        if blink_timer >= 700:
             blink_state = not blink_state
             blink_timer = 0
 
         mouse_pos = pygame.mouse.get_pos()
-        
+
         # Botón de Créditos (Superior Derecha)
         credits_font = get_font(20)
         credits_text = "CREDITOS"
@@ -520,7 +546,7 @@ def main():
             credits_surf.get_height() + (credits_padding * 2)
         )
         is_credits_hover = credits_rect.collidepoint(mouse_pos)
-        
+
         # EVENTOS
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -544,10 +570,10 @@ def main():
 
                 # Interruptores musica
                 music_toggle_rect = pygame.Rect(140, SCREENHEIGHT - 60, 50, 25)
-                
+
                 if music_toggle_rect.collidepoint(event.pos):
                     toggle_music()
-                    
+
                 # NUEVO: Botón de Créditos
                 if credits_rect.collidepoint(event.pos):
                     credits_screen(SCREEN, FPSCLOCK) # Llamar a la nueva pantalla de créditos
@@ -562,7 +588,7 @@ def main():
                         cursor_pos = max(0, cursor_pos - 1)
                     elif event.key == K_DELETE and cursor_pos < len(email_text):
                         email_text = email_text[:cursor_pos] + email_text[cursor_pos + 1:]
-                        cursor_pos = min(len(email_text), cursor_pos) 
+                        cursor_pos = min(len(email_text), cursor_pos)
                     elif event.key == K_LEFT:
                         cursor_pos = max(0, cursor_pos - 1)
                     elif event.key == K_RIGHT:
@@ -579,7 +605,7 @@ def main():
                     elif event.key == K_m:
                         toggle_music()
                     elif event.key == K_c: # NUEVO: Acceso rápido a créditos con 'C'
-                        credits_screen(SCREEN, FPSCLOCK) 
+                        credits_screen(SCREEN, FPSCLOCK)
                     elif event.key == K_RETURN:
                         menu_items[selected_index]["action"]()
 
@@ -596,8 +622,7 @@ def main():
         title_width, title_height = title_font.size(title_text)
         title_x = SCREENWIDTH // 2 - title_width // 2
         title_y = 90
-        
-        
+
         main_title_color = (255, 255, 255)
         outline_title_color = COLORS['button_grey']
 
@@ -613,7 +638,7 @@ def main():
             SCREEN,
             outline_size=3
         )
-        
+
         # NUEVO: Dibujar el botón de Créditos
         button_color = COLORS['button_hover'] if is_credits_hover else COLORS['button_grey']
         pygame.draw.rect(SCREEN, COLORS['input_box'], credits_rect)
@@ -622,7 +647,6 @@ def main():
         credits_surf = credits_font.render(credits_text, True, credits_text_color)
         credits_text_rect = credits_surf.get_rect(center=credits_rect.center)
         render_text_with_outline(credits_font, credits_text, credits_text_color, (0, 0, 0), (credits_text_rect.x, credits_text_rect.y), SCREEN, 1)
-
 
         # Caja de entrada con su botón 'X'
         clear_rect, hovering_clear = input_box_logic_retro(
@@ -653,7 +677,7 @@ def main():
             if i == selected_index and blink_state:
                 cursor_open = menu_font.render(">", True, COLORS['text'])
                 cursor_close = menu_font.render("<", True, COLORS['text'])
-                SCREEN.blit(cursor_open, (pos[0] - 30, pos[1]))
+                SCREEN.blit(cursor_open, (pos[1] - 30, pos[1]))
                 SCREEN.blit(cursor_close, (pos[0] + text_w + 15, pos[1]))
 
         # Controles inferiores (instrucciones e interruptores)
@@ -662,7 +686,7 @@ def main():
             note_font.render("PRESIONA 'M' PARA SILENCIAR Y 'C' PARA CRÉDITOS", True, COLORS['button_hover']),
             note_font.render("PRESIONA 'M' PARA SILENCIAR Y 'C' PARA CRÉDITOS", True, COLORS['button_hover']).get_rect(center=(SCREENWIDTH // 2, SCREENHEIGHT - 10))
         )
-        
+
         # Dibuja el interruptor del estado de la musica (musica activada por defecto)
         fs_font = get_font(24)
         SCREEN.blit(fs_font.render("MÚSICA", True, COLORS['text']), (20, SCREENHEIGHT - 60))
@@ -670,8 +694,6 @@ def main():
 
         draw_scanlines(SCREEN)
         pygame.display.update()
-
-
 
 if __name__ == '__main__':
     initialize_data_storage()
