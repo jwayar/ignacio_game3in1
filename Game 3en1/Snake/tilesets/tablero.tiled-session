@@ -1,0 +1,91 @@
+{
+    "activeFile": "tablero.tmj",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 0.33,
+            "scaleInEditor": 0.03
+        },
+        "#MgV8iZ": {
+            "scaleInDock": 0.5
+        },
+        "#tablero2": {
+            "scaleInDock": 1
+        },
+        "F:/general/Descargas/descargas de firefox/st/MgV8iZ.tsx": {
+            "scaleInDock": 1
+        },
+        "F:/general/Descargas/descargas de firefox/st/tablero.tmx": {
+            "scale": 1.6565625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.2716468590832,
+                "y": 113.18619128466327
+            }
+        },
+        "F:/general/Descargas/descargas de firefox/st/tablero.tsx": {
+            "scaleInDock": 1
+        },
+        "st/tablero.tmj": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 187,
+                "y": 275.5
+            }
+        },
+        "st/tablero.tmj#MgV8iZ": {
+            "scaleInDock": 1
+        },
+        "tablero.tmj": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": -131,
+                "y": 195.5
+            }
+        },
+        "tablero.tmj#Dungeon_Tileset": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "tablero.tmj#MgV8iZ": {
+            "scaleInDock": 1
+        },
+        "tablero.tmj#Pit_Trap_Spikes": {
+            "scaleInDock": 4
+        },
+        "tablero.tmj#tablero2": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.75,
+            "scaleInEditor": 0.03
+        },
+        "tablero.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 124.5,
+                "y": 281.5
+            }
+        },
+        "tablero.tmx#MgV8iZ": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "F:/general/Descargas/Telegram Desktop/juego 3 en 1 (copia) - uso de sprite/juego 3 en 1 (copia) - integracion de notificaciones/Game 3en1_copy/Snake/tilesets",
+    "openFiles": [
+        "tablero.tmj"
+    ],
+    "project": "",
+    "recentFiles": [
+        "tablero.tmj",
+        "st/tablero.tmj"
+    ],
+    "resizeMap.removeObjects": false,
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 25,
+        "width": 25
+    }
+}

@@ -1,0 +1,188 @@
+{
+    "SPACEINVADERS": [
+        {
+            "name": "L",
+            "email": "alanferroni0d90@gmail.com",
+            "score": 490,
+            "date": "2025-11-11 16:33:02"
+        },
+        {
+            "name": "SI-01",
+            "email": "jugador@anonimo.com",
+            "score": 100,
+            "date": "2025-11-06 01:00:00"
+        },
+        {
+            "name": "SI-02",
+            "email": "jugador@anonimo.com",
+            "score": 90,
+            "date": "2025-11-06 01:00:10"
+        },
+        {
+            "name": "SI-03",
+            "email": "jugador@anonimo.com",
+            "score": 80,
+            "date": "2025-11-06 01:00:20"
+        },
+        {
+            "name": "SI-04",
+            "email": "jugador@anonimo.com",
+            "score": 70,
+            "date": "2025-11-06 01:00:30"
+        },
+        {
+            "name": "SI-05",
+            "email": "jugador@anonimo.com",
+            "score": 60,
+            "date": "2025-11-06 01:00:40"
+        },
+        {
+            "name": "SI-06",
+            "email": "jugador@anonimo.com",
+            "score": 50,
+            "date": "2025-11-06 01:00:50"
+        },
+        {
+            "name": "SI-07",
+            "email": "jugador@anonimo.com",
+            "score": 40,
+            "date": "2025-11-06 01:01:00"
+        },
+        {
+            "name": "SI-08",
+            "email": "jugador@anonimo.com",
+            "score": 30,
+            "date": "2025-11-06 01:01:10"
+        },
+        {
+            "name": "SI-09",
+            "email": "jugador@anonimo.com",
+            "score": 20,
+            "date": "2025-11-06 01:01:20"
+        }
+    ],
+    "SNAKE": [
+        {
+            "name": "alanf",
+            "email": "alanferroni0d90@gmail.com",
+            "score": 50,
+            "date": "2025-11-19 06:33:47"
+        },
+        {
+            "name": "SN-A",
+            "email": "jugador@anonimo.com",
+            "score": 10,
+            "date": "2025-11-06 01:01:40"
+        },
+        {
+            "name": "SN-B",
+            "email": "jugador@anonimo.com",
+            "score": 9,
+            "date": "2025-11-06 01:01:50"
+        },
+        {
+            "name": "SN-C",
+            "email": "jugador@anonimo.com",
+            "score": 8,
+            "date": "2025-11-06 01:02:00"
+        },
+        {
+            "name": "SN-D",
+            "email": "jugador@anonimo.com",
+            "score": 7,
+            "date": "2025-11-06 01:02:10"
+        },
+        {
+            "name": "SN-E",
+            "email": "jugador@anonimo.com",
+            "score": 6,
+            "date": "2025-11-06 01:02:20"
+        },
+        {
+            "name": "SN-F",
+            "email": "jugador@anonimo.com",
+            "score": 5,
+            "date": "2025-11-06 01:02:30"
+        },
+        {
+            "name": "SN-G",
+            "email": "jugador@anonimo.com",
+            "score": 4,
+            "date": "2025-11-06 01:02:40"
+        },
+        {
+            "name": "SN-H",
+            "email": "jugador@anonimo.com",
+            "score": 3,
+            "date": "2025-11-06 01:02:50"
+        },
+        {
+            "name": "SN-I",
+            "email": "jugador@anonimo.com",
+            "score": 2,
+            "date": "2025-11-06 01:03:00"
+        }
+    ],
+    "FLAPPY": [
+        {
+            "name": "ALANF",
+            "email": "alanferroni0d90@gmail.com",
+            "score": 11,
+            "date": "2025-11-26 15:33:19"
+        },
+        {
+            "name": "F-01",
+            "email": "jugador@anonimo.com",
+            "score": 10,
+            "date": "2025-11-06 01:03:20"
+        },
+        {
+            "name": "F-02",
+            "email": "jugador@anonimo.com",
+            "score": 9,
+            "date": "2025-11-06 01:03:30"
+        },
+        {
+            "name": "F-03",
+            "email": "jugador@anonimo.com",
+            "score": 8,
+            "date": "2025-11-06 01:03:40"
+        },
+        {
+            "name": "F-04",
+            "email": "jugador@anonimo.com",
+            "score": 7,
+            "date": "2025-11-06 01:03:50"
+        },
+        {
+            "name": "F-05",
+            "email": "jugador@anonimo.com",
+            "score": 6,
+            "date": "2025-11-06 01:04:00"
+        },
+        {
+            "name": "F-06",
+            "email": "jugador@anonimo.com",
+            "score": 5,
+            "date": "2025-11-06 01:04:10"
+        },
+        {
+            "name": "F-07",
+            "email": "jugador@anonimo.com",
+            "score": 4,
+            "date": "2025-11-06 01:04:20"
+        },
+        {
+            "name": "F-08",
+            "email": "jugador@anonimo.com",
+            "score": 3,
+            "date": "2025-11-06 01:04:30"
+        },
+        {
+            "name": "F-09",
+            "email": "jugador@anonimo.com",
+            "score": 2,
+            "date": "2025-11-06 01:04:40"
+        }
+    ]
+}
