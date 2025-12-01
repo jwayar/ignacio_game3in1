@@ -59,6 +59,11 @@ except ImportError as e:
     import traceback
     traceback.print_exc()
     GAMES_AVAILABLE = False
+except Exception as e:
+    print(f"[DEBUG] Otro error: {e}")
+    import traceback
+    traceback.print_exc()
+    GAMES_AVAILABLE = False
 
 # Data store
 DATA_PATH = os.path.join(BASE_PATH, "data") # carpeta para almacenar los puntajes
@@ -299,13 +304,55 @@ def run_game(game_function, player_email):
     try:
         pygame.mixer.music.stop()
         save_email(player_email)
+        print(f"[DEBUG] Ejecutando juego con email: {player_email}")
         # Pasar el email como argumento a la función del juego
         game_function(player_email)
     except Exception as e:
-        print(f"Error ejecutando el juego: {e}")
+        print(f"[DEBUG] Error ejecutando el juego: {e}")
+        import traceback
+        traceback.print_exc()
+
+        # Mostrar mensaje de error en pantalla
+        show_error_message(f"Error al abrir el juego: {str(e)}")
     finally:
         if IS_MUSIC_ON:
             play_music()
+
+def show_error_message(error_text):
+    """Muestra un mensaje de error temporal"""
+    error_font = get_font(20)
+    error_surface = error_font.render(error_text, True, COLORS['red_alert'])
+    error_rect = error_surface.get_rect(center=(SCREENWIDTH//2, SCREENHEIGHT//2))
+
+    # Guardar pantalla actual
+    temp_surface = SCREEN.copy()
+
+    # Dibujar mensaje de error
+    SCREEN.fill(COLORS['dark_bg'])
+    pygame.draw.rect(SCREEN, (80, 40, 40), error_rect.inflate(20, 20))
+    SCREEN.blit(error_surface, error_rect)
+
+    # Mensaje para continuar
+    continue_font = get_font(16)
+    continue_text = continue_font.render("Presiona cualquier tecla para continuar...", True, COLORS['text'])
+    continue_rect = continue_text.get_rect(center=(SCREENWIDTH//2, SCREENHEIGHT//2 + 50))
+    SCREEN.blit(continue_text, continue_rect)
+
+    pygame.display.update()
+
+    # Esperar tecla
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN or event.type == MOUSEBUTTONDOWN:
+                waiting = False
+
+    # Restaurar pantalla
+    SCREEN.blit(temp_surface, (0, 0))
+    pygame.display.update()
 
 #Dibuja un interruptor para los estados de pantalla y musica (on/off)
 def draw_toggle_switch(screen, x, y, is_on, width=50, height=25):

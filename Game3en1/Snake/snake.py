@@ -1,9 +1,10 @@
-import sys
 import os
-import pygame
-import random
+import sys
 import json
 import math
+import pygame
+import random
+
 from pygame.math import Vector2
 from datetime import datetime
 from pytmx.util_pygame import load_pygame
@@ -1086,6 +1087,6 @@ def main(player_email=""):
 
     start_game_loop(player_name, initial_email)
 
-# Esto permite ejecutar el juego independientemente
+# Ejecutar el juego independientemente
 if __name__ == "__main__":
     main()

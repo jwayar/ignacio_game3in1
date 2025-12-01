@@ -1,9 +1,10 @@
-import pygame
-import random
-import sys
 import os
+import sys
 import math
 import json
+import pygame
+import random
+
 from itertools import cycle
 from pygame.locals import *
 from datetime import datetime
@@ -12,7 +13,6 @@ from datetime import datetime
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
-
 try:
     from notificaciones.email_notifier import send_email_notification
 except ModuleNotFoundError as e:
@@ -21,8 +21,7 @@ except ModuleNotFoundError as e:
 
 
 print("DEBUG: __file__ =", __file__)
-print("DEBUG: snake BASE_DIR =", BASE_DIR)
-import sys
+print("DEBUG: Flappy Bird BASE_DIR =", BASE_DIR)
 print("DEBUG: sys.path[0:5] =", sys.path[0:5])
 
 GLOBAL_SCORES_PATH = os.path.join(BASE_DIR, "data", "global_scores.json")
@@ -657,7 +656,10 @@ def stop_music(fade_ms=800):
         pass
 
 
-def main():
+def main(player_email=""):
+    """Función principal para ejecutar Flappy Bird desde el menú"""
+    print(f"Jugando Flappy Bird con email: {player_email}")
+
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -1395,10 +1397,6 @@ def getReducedHitmask(image):
                 mask[x].append(False)  # Fuera del área de colisión
 
     return mask
-
-def main(player_email=""):
-    """Función principal para ejecutar Flappy Bird desde el menú"""
-    print(f"Jugando Flappy Bird con email: {player_email}")
 
 if __name__ == "__main__":
     # Si se ejecuta directamente, obtener email de argumentos

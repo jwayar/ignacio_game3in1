@@ -1,9 +1,10 @@
-import pygame
-import random
-import sys
 import os
+import sys
 import time
 import json
+import pygame
+import random
+
 from datetime import datetime
 
 player_email_global = ""
